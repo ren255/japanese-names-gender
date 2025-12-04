@@ -1,0 +1,23 @@
+ipython
+ipykernel
+pandas
+# scikit-learn
+numpy
+# fsspec
+# huggingface_hub
+python-romkan-ng 
+# sentence-transformers
+matplotlib
+namedivider-python
+# optuna
+# optuna-integration[lightgbm]
+# xgboost
+catboost
+# pytorch-tabnet
+japanese_personal_name_dataset
+
+seaborn
+japanize-matplotlib
+statsmodels
+plotly
+squarify
