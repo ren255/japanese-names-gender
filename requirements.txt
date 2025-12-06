@@ -21,3 +21,5 @@ japanize-matplotlib
 statsmodels
 plotly
 squarify
+
+tabulate
