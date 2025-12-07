@@ -1,6 +1,7 @@
 # %%
 import pandas as pd
 import matplotlib.pyplot as plt
+import pyperclip
 
 dataset = pd.read_csv("dataset.csv")
 dataset.columns = ["dataset", "sex", "kanji", "hiragana"]
@@ -11,8 +12,6 @@ dataset.columns = ["dataset", "sex", "kanji", "hiragana"]
 
 def count_unique(df):
 
-    # -------- 「all」行を作るために df に追加する --------
-    # 元の df を壊さないためコピー
     df2 = df.copy()
     df2_with_all = pd.concat(
         [df2, df2.assign(dataset="all")], ignore_index=True  # dataset="all" を追加
@@ -203,5 +202,113 @@ sex_kanji_ctn = kanji_sex_count(
     sex_col="sex",
 )
 plt_word_cloud(sex_kanji_ctn)
+
+
+# %%
+# %%
+def count_dataset_exclusive(df):
+    """各データセットにしか含まれない名前をカウント"""
+    rows = []
+    datasets = df["dataset"].unique()
+
+    for ds in datasets:
+        ds_data = df[df["dataset"] == ds]
+        other_data = df[df["dataset"] != ds]
+
+        # kanji only exclusive
+        ds_kanji = set(ds_data["kanji"].dropna())
+        other_kanji = set(other_data["kanji"].dropna())
+        kanji_exclusive = len(ds_kanji - other_kanji)
+
+        # hiragana only exclusive
+        ds_hiragana = set(ds_data["hiragana"].dropna())
+        other_hiragana = set(other_data["hiragana"].dropna())
+        hiragana_exclusive = len(ds_hiragana - other_hiragana)
+
+        # both exclusive
+        ds_both = set(zip(ds_data["kanji"].fillna(""), ds_data["hiragana"].fillna("")))
+        ds_both = {pair for pair in ds_both if pair[0] and pair[1]}
+        other_both = set(
+            zip(other_data["kanji"].fillna(""), other_data["hiragana"].fillna(""))
+        )
+        other_both = {pair for pair in other_both if pair[0] and pair[1]}
+        both_exclusive = len(ds_both - other_both)
+
+        rows.append(
+            {
+                "dataset": ds,
+                "both": both_exclusive,
+                "kanji": kanji_exclusive,
+                "hiragana": hiragana_exclusive,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+def plt_exclusive_counts(dataset):
+    exclusive_counts = count_dataset_exclusive(dataset)
+
+    # 総合カウント
+    total_counts = result_dataset[
+        ["both_unique", "kanji_unique", "hiragana_unique"]
+    ].reset_index()
+    total_counts.columns = ["dataset", "both", "kanji", "hiragana"]
+
+    # プロット
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    x_labels = ["both", "kanji", "hiragana"]
+    x_pos = range(len(x_labels))
+    width = 0.6
+
+    # 各データセットごとにスタック
+    bottom = [0, 0, 0]
+    for _, row in exclusive_counts.iterrows():
+        values = [row["both"], row["kanji"], row["hiragana"]]
+        ax.bar(x_pos, values, width, bottom=bottom, label=row["dataset"])
+        bottom = [b + v for b, v in zip(bottom, values)]
+
+    # exclusive合計のテキスト表示
+    for i in x_pos:
+        ax.text(
+            i,
+            bottom[i],
+            human_format(bottom[i], None),
+            ha="center",
+            va="bottom",
+            fontsize=9,
+        )
+
+    # 総合カウントの破線
+    for i, col in enumerate(x_labels):
+        total = total_counts[col].sum()
+        ax.hlines(
+            y=total,
+            xmin=i - 0.35,
+            xmax=i + 0.35,
+            colors="black",
+            linestyles="dashed",
+            linewidth=1.6,
+        )
+        ax.text(
+            i, total, human_format(total, None), ha="center", va="bottom", fontsize=9
+        )
+
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(x_labels)
+    ax.set_ylabel("Count")
+    ax.set_title("Dataset-Exclusive Counts (Stacked)")
+    ax.yaxis.set_major_formatter(FuncFormatter(human_format))
+    ax.legend()
+    ax.grid(axis="y", linestyle="--", alpha=0.4)
+
+    plt.tight_layout()
+    plt.show()
+    return exclusive_counts
+
+
+# %%
+exclusive = plt_exclusive_counts(dataset)
 
 # %%

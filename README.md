@@ -17,8 +17,8 @@ gendecはname_originのうちの頻出データであるため使用はおすす
 
 ### 各データセット内のunique
 
-![dataset unique](image-4.png)
-![type unique](image-5.png)
+![dataset unique](image/README/image-4.png)
+![type unique](image/README/image-5.png)
 
 | dataset     | total_count | kanji_unique | hiragana_unique | both_unique |
 | :---------- | ----------: | -----------: | --------------: | ----------: |
@@ -36,22 +36,13 @@ gendecはname_originのうちの頻出データであるため使用はおすす
 | enamdict    |       8763 |            0 |           23428 |     23471 |          92538 |
 | name_origin |      42091 |        23428 |               0 |     56799 |          32636 |
 
-### gendeckを除く　漢字の重複
+### 各datasetのみが所有するunique
 
-![漢字](image.png)
+![1765078676842](image/README/1765078676842.png)
 
-| facebook_dup | enamdict_dup | name_origin_dup | total_dup | non_dup |
-| -----------: | -----------: | --------------: | --------: | ------: |
-|            0 |         4262 |            6997 |      7674 |    3567 |
-|         4262 |            0 |           24038 |     24715 |   68461 |
-|         6997 |        24038 |               0 |     27450 |   41552 |
-
-### gendeckを除く ひらがなの重複
-
-![ひらがな](image-1.png)
-
-| facebook_dup | enamdict_dup | name_origin_dup | total_dup | non_dup |
-| -----------: | -----------: | --------------: | --------: | ------: |
-|            0 |         4064 |            3796 |      5100 |    9925 |
-|         4064 |            0 |            5121 |      6425 |    9385 |
-|         3796 |         5121 |               0 |      6157 |    2602 |
+| dataset     |   both |   kanji |   hiragana |
+|:------------|-------:|--------:|-----------:|
+| facebook    |      0 |    3565 |       9887 |
+| gendec      |   2295 |     216 |          5 |
+| enamdict    |  92538 |   68411 |       9384 |
+| name_origin |  32636 |   19423 |       2585 |
