@@ -15,8 +15,10 @@ facebook = pd.read_csv("names/facebook.csv")
 gendec = pd.read_csv("names/gendec.csv")
 name_origin = pd.read_csv("names/name_origin.csv")
 fb_stats = pd.read_csv("names/fb_stats.csv")
+wiki = pd.read_csv("names/wiki.csv")
 
 enamdict.columns = ["sex", "kanji", "hiragana", "romaji"]
+wiki.columns = ["sex", "kanji", "hiragana", "birth_year"]
 name_origin.columns = ["kanji", "hiragana", "romaji", "sex"]
 gendec.columns = ["sex", "kanji", "hiragana", "romaji"]
 facebook.columns = ["first_name", "last_name", "sex", "country"]
@@ -51,14 +53,16 @@ def preprocess_facebook(df: pd.DataFrame) -> pd.DataFrame:
     return df[["sex", "kanji", "hiragana"]]
 
 
+wiki["birth_year"] = pd.to_numeric(wiki["birth_year"], errors="coerce").astype("Int64")
 facebook = preprocess_facebook(facebook)
 gendec = preprocess_gendec(gendec)
 
+wiki["dataset"] = "wiki"
 facebook["dataset"] = "facebook"
 gendec["dataset"] = "gendec"
 enamdict["dataset"] = "enamdict"
 name_origin["dataset"] = "name_origin"
-dataset = pd.concat([facebook, gendec, enamdict, name_origin], ignore_index=True)
-dataset = dataset[["dataset", "sex", "kanji", "hiragana"]]
-
+dataset = pd.concat([wiki, facebook, gendec, enamdict, name_origin], ignore_index=True)
+dataset = dataset[["dataset", "sex", "kanji", "hiragana", "birth_year"]]
+dataset.to_csv("dataset.csv", index=False)
 # %%

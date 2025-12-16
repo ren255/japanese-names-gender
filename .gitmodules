@@ -1,0 +1,3 @@
+[submodule "japanese-celeb-dataset"]
+	path = japanese-celeb-dataset
+	url = https://github.com/ren255/japanese-celeb-dataset
