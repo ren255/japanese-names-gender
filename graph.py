@@ -1,10 +1,10 @@
 # %%
 import pandas as pd
 import matplotlib.pyplot as plt
-import pyperclip
+import pyperclip as clip
 
 dataset = pd.read_csv("dataset.csv")
-dataset.columns = ["dataset", "sex", "kanji", "hiragana"]
+dataset.columns = ["dataset", "sex", "kanji", "hiragana", "birth_year"]
 
 
 # %%
@@ -106,6 +106,7 @@ type_result = result.T
 type_result = type_result.rename(columns={"all": "total_count"})
 type_result = type_result[type_result.index != "total_count"]
 plot_unique_with_totals(type_result)
+print(result)
 
 # %%
 
@@ -195,13 +196,25 @@ sex_kanji_ctn = kanji_sex_count(
 )
 plt_word_cloud(sex_kanji_ctn)
 
+
 # %%
-sex_kanji_ctn = kanji_sex_count(
-    dataset[dataset["dataset"] == "facebook"],
-    kanji_col="kanji",
-    sex_col="sex",
-)
-plt_word_cloud(sex_kanji_ctn)
+def word_cloud(dataset, name):
+    print(name)
+    sex_kanji_ctn = kanji_sex_count(
+        dataset,
+        kanji_col="kanji",
+        sex_col="sex",
+    )
+    plt_word_cloud(sex_kanji_ctn)
+
+
+word_cloud(dataset[dataset["dataset"] == "facebook"], "facebook")
+word_cloud(dataset[dataset["dataset"] == "wiki"], "wiki")
+word_cloud(dataset, "all")
+# %%
+word_cloud(dataset[dataset["birth_year"] < 1950], "~1950")
+word_cloud(dataset[dataset["birth_year"] > 1950], "1950~")
+word_cloud(dataset[dataset["birth_year"] > 2000], "2000~")
 
 
 # %%
@@ -246,8 +259,11 @@ def count_dataset_exclusive(df):
     return pd.DataFrame(rows)
 
 
-def plt_exclusive_counts(dataset):
-    exclusive_counts = count_dataset_exclusive(dataset)
+def plt_exclusive_counts(dataset, exclusive=False):
+    if not exclusive:
+        exclusive_counts = count_dataset_exclusive(dataset)
+    else:
+        exclusive_counts = dataset
 
     # 総合カウント
     total_counts = result_dataset[
@@ -280,20 +296,26 @@ def plt_exclusive_counts(dataset):
             fontsize=9,
         )
 
-    # 総合カウントの破線
-    for i, col in enumerate(x_labels):
-        total = total_counts[col].sum()
-        ax.hlines(
-            y=total,
-            xmin=i - 0.35,
-            xmax=i + 0.35,
-            colors="black",
-            linestyles="dashed",
-            linewidth=1.6,
-        )
-        ax.text(
-            i, total, human_format(total, None), ha="center", va="bottom", fontsize=9
-        )
+    if not exclusive:
+        # 総合カウントの破線
+        for i, col in enumerate(x_labels):
+            total = total_counts[col].sum()
+            ax.hlines(
+                y=total,
+                xmin=i - 0.35,
+                xmax=i + 0.35,
+                colors="black",
+                linestyles="dashed",
+                linewidth=1.6,
+            )
+            ax.text(
+                i,
+                total,
+                human_format(total, None),
+                ha="center",
+                va="bottom",
+                fontsize=9,
+            )
 
     ax.set_xticks(x_pos)
     ax.set_xticklabels(x_labels)
